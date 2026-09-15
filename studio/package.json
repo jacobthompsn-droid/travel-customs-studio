@@ -1,0 +1,48 @@
+{
+  "name": "travel-customs-studio",
+  "version": "1.0.0",
+  "description": "Travel Customs Studio — the desktop app for writing and publishing thetravelcustoms.com",
+  "private": true,
+  "main": "main.js",
+  "author": "Jacob Thompson",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "dependencies": {
+    "isomorphic-git": "1.38.6"
+  },
+  "devDependencies": {
+    "electron": "43.0.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.travelcustoms.studio",
+    "productName": "Travel Customs Studio",
+    "directories": {
+      "buildResources": "build",
+      "output": "C:/Users/jacob/AppData/Local/travel-customs-studio/installer-out"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "publish.js",
+      "renderer/**",
+      "scripts/**"
+    ],
+    "asarUnpack": [
+      "scripts/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Travel Customs Studio"
+    }
+  }
+}

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'unsafe-inline'; script-src 'self'"
+    />
+    <title>Travel Customs Studio</title>
+    <style>
+      :root {
+        --accent: #155e75;
+        --accent-deep: #0e4759;
+        --text: #262b2e;
+        --text-soft: #5f6b76;
+        --line: #e6e8ea;
+        --tint: #f2f7f9;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        font-family: system-ui, 'Segoe UI', sans-serif;
+        background: #ffffff;
+        color: var(--text);
+        user-select: none;
+      }
+      .sidebar {
+        width: 200px;
+        height: 100%;
+        border-right: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+        padding: 1.25rem 0.9rem 1rem;
+      }
+      .brand {
+        font-family: Georgia, serif;
+        font-weight: 700;
+        font-size: 1.15rem;
+        letter-spacing: -0.01em;
+        margin: 0 0 0.2rem;
+        padding: 0 0.35rem;
+      }
+      .brand-sub {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        font-weight: 650;
+        margin: 0 0 1.6rem;
+        padding: 0 0.35rem;
+      }
+      .nav-button {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 0.65rem 0.75rem;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 0.25rem;
+        text-align: left;
+      }
+      .nav-button:hover {
+        background: var(--tint);
+      }
+      .nav-button.active {
+        background: var(--tint);
+        color: var(--accent-deep);
+      }
+      .nav-button .icon {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+      .nav-button.publish {
+        margin-top: 0.9rem;
+        background: var(--accent);
+        color: #ffffff;
+        justify-content: center;
+      }
+      .nav-button.publish:hover {
+        background: var(--accent-deep);
+      }
+      .nav-button.publish:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .publish-hint.is-error {
+        color: #b3382c;
+      }
+      .publish-hint.is-success {
+        color: #2e8b57;
+      }
+      .link-button {
+        border: 0;
+        background: transparent;
+        color: var(--text-soft);
+        font-size: 0.75rem;
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 0.4rem 0.75rem 0;
+        text-align: left;
+      }
+      .link-button:hover {
+        color: var(--accent);
+      }
+      .github-form {
+        padding: 0.5rem 0.75rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .github-form label {
+        font-size: 0.7rem;
+        font-weight: 650;
+        color: var(--text-soft);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .github-form input {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 0.35rem 0.5rem;
+        font-size: 0.8rem;
+        width: 100%;
+      }
+      .github-form input:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      .publish-hint {
+        font-size: 0.72rem;
+        line-height: 1.45;
+        color: var(--text-soft);
+        margin: 0.3rem 0 0;
+        padding: 0 0.75rem;
+      }
+      .spacer {
+        flex: 1;
+      }
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+        padding: 0.5rem 0.75rem;
+        line-height: 1.35;
+      }
+      .status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #d9a514; /* amber = starting */
+        flex-shrink: 0;
+      }
+      .status.ready .status-dot {
+        background: #2e8b57;
+      }
+      .status.error .status-dot {
+        background: #b3382c;
+      }
+      .claude-box {
+        border-top: 1px solid var(--line);
+        padding-top: 0.9rem;
+        margin-bottom: 0.9rem;
+      }
+      .claude-label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-soft);
+        margin: 0 0 0.35rem;
+        padding: 0 0.35rem;
+      }
+      .claude-mark {
+        width: 12px;
+        height: 12px;
+        color: var(--accent);
+      }
+      .claude-hint {
+        font-size: 0.72rem;
+        line-height: 1.45;
+        color: var(--text-soft);
+        margin: 0 0 0.6rem;
+        padding: 0 0.35rem;
+      }
+      .see-site {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--accent);
+        font-size: 0.9rem;
+        font-weight: 650;
+        padding: 0.65rem 0.75rem;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 0.5rem;
+      }
+      .see-site:hover {
+        border-color: var(--accent);
+        background: var(--tint);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="sidebar">
+      <p class="brand">Travel Customs</p>
+      <p class="brand-sub">Studio</p>
+
+      <button class="nav-button active" id="btn-write">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17 3l4 4L8 20l-5 1 1-5L17 3z" />
+          <path d="M14.5 5.5l4 4" />
+        </svg>
+        Write
+      </button>
+      <button class="nav-button" id="btn-preview">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        Preview
+      </button>
+
+      <button class="nav-button publish" id="btn-publish"
+        title="Checks your site for problems, saves a snapshot, and sends it to be published. Save alone never goes online.">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 19V6" />
+          <path d="M5.5 12.5L12 6l6.5 6.5" />
+          <path d="M5 21h14" />
+        </svg>
+        Publish
+      </button>
+      <p class="publish-hint" id="publish-hint">
+        Saving keeps your work on this computer. Publish is what sends it out.
+      </p>
+
+      <button class="link-button" id="btn-github-toggle">Connect GitHub…</button>
+      <div class="github-form" id="github-form" hidden>
+        <label for="gh-repo">Repository address</label>
+        <input id="gh-repo" type="text" placeholder="https://github.com/you/repo" spellcheck="false" />
+        <label for="gh-token">Access token</label>
+        <input id="gh-token" type="password" placeholder="paste your token" />
+        <button class="see-site" id="btn-github-save">Save</button>
+        <p class="publish-hint" id="github-msg"></p>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="claude-box">
+        <p class="claude-label">
+          <svg class="claude-mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" />
+          </svg>
+          Built with Claude
+        </p>
+        <p class="claude-hint">
+          Claude can read and change this app and your website when you ask.
+        </p>
+        <button class="see-site" id="btn-ask-claude" title="Open Claude and describe what you want changed">
+          Ask Claude ↗
+        </button>
+      </div>
+
+      <div class="status" id="status">
+        <span class="status-dot"></span>
+        <span id="status-text">Starting up…</span>
+      </div>
+      <button class="see-site" id="btn-see-site" title="Open your website in your browser">
+        See site ↗
+      </button>
+    </nav>
+    <script src="./sidebar.js"></script>
+  </body>
+</html>

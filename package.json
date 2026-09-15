@@ -1,0 +1,30 @@
+{
+  "name": "travel-customs",
+  "version": "0.1.0",
+  "description": "Travel Customs — budget-friendly U.S. family travel blog (Astro 5 static site)",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "4.3.14",
+    "@astrojs/react": "4.4.2",
+    "@astrojs/rss": "4.0.19",
+    "@astrojs/sitemap": "3.7.3",
+    "@fontsource-variable/fraunces": "5.2.9",
+    "@fontsource-variable/source-sans-3": "5.2.9",
+    "@fontsource-variable/source-serif-4": "5.2.9",
+    "@keystatic/astro": "5.1.0",
+    "@keystatic/core": "0.5.50",
+    "astro": "5.18.2",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  }
+}

@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CategoryStrip from '../components/CategoryStrip.astro';
+---
+
+<BaseLayout
+  title="Page not found — Travel Customs"
+  description="That page doesn't exist — but the trip isn't over. Browse our latest guides."
+>
+  <div class="container">
+    <h1>Wrong turn!</h1>
+    <p>
+      That page doesn't exist (or it moved). No worries — the best detours are unplanned. Head
+      <a href="/">back home</a> or browse by category:
+    </p>
+    <CategoryStrip />
+  </div>
+</BaseLayout>

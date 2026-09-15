@@ -1,0 +1,35 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+// Self-hosted fonts (no third-party requests): Fraunces for display
+// headlines, Source Sans 3 for body. Both variable fonts, latin subset.
+import '@fontsource-variable/fraunces';
+import '@fontsource-variable/source-sans-3';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  masthead?: boolean;
+}
+
+const { masthead = false, ...headProps } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead {...headProps} />
+    <slot name="head" />
+  </head>
+  <body>
+    <Header masthead={masthead} />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,23 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// The About page text is editable in the Studio editor ("About page").
+const about = await getEntry('pages', 'about');
+if (!about) {
+  throw new Error(
+    'The About page content is missing (src/content/pages/about.md). ' +
+      'Restore it or re-create it in the editor before publishing.',
+  );
+}
+const { Content } = await render(about);
+---
+
+<BaseLayout title={`${about.data.title} — Travel Customs`} description={about.data.description}>
+  <div class="container">
+    <article class="prose">
+      <h1>{about.data.title}</h1>
+      <Content />
+    </article>
+  </div>
+</BaseLayout>

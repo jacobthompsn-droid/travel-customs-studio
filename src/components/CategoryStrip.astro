@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+
+// Renders from live categories data — adding a category in Studio
+// makes it appear here automatically on the next publish.
+const categories = (await getCollection('categories')).sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
+---
+
+<ul class="category-strip">
+  {
+    categories.map((category) => (
+      <li>
+        <a href={`/category/${category.id}/`}>{category.data.name}</a>
+      </li>
+    ))
+  }
+</ul>

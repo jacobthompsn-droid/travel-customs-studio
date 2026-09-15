@@ -1,0 +1,35 @@
+---
+interface Props {
+  quickFacts: {
+    budget?: string;
+    duration?: string;
+    season?: string;
+    whoFor?: string;
+  };
+}
+
+const { quickFacts } = Astro.props;
+
+const facts = [
+  { label: 'Budget', value: quickFacts.budget },
+  { label: 'Duration', value: quickFacts.duration },
+  { label: 'Best season', value: quickFacts.season },
+  { label: 'Good for', value: quickFacts.whoFor },
+].filter((fact) => fact.value);
+---
+
+{
+  facts.length > 0 && (
+    <aside class="quick-facts">
+      <h2>Trip at a glance</h2>
+      <dl>
+        {facts.map((fact) => (
+          <div>
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </aside>
+  )
+}

@@ -1,0 +1,606 @@
+/* ============================================================
+   Travel Customs — global styles (Phase 2 editorial design)
+   Direction locked by Jacob 2026-07-04: pure white canvas,
+   charcoal text, deep sea-blue accent, serif display headlines
+   (Fraunces) + readable sans body (Source Sans 3). Mobile-first.
+   ============================================================ */
+
+/* The letter-F patch (Jacob, 2026-07-05): he likes Fraunces except its F.
+   These faces cover ONLY F (U+0046) and f (U+0066); listed before Fraunces
+   in --font-display, so every F/f in headlines renders from Source Serif 4
+   while all other letters stay Fraunces. */
+@font-face {
+  font-family: 'TC Display F';
+  src: url('./fonts/source-serif-4-latin-wght-normal.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0046, U+0066;
+}
+@font-face {
+  font-family: 'TC Display F';
+  src: url('./fonts/source-serif-4-latin-wght-italic.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0046, U+0066;
+}
+
+:root {
+  --color-bg: #ffffff; /* pure white canvas (Jacob's call — not cream) */
+  --color-text: #262b2e; /* charcoal, cool-leaning */
+  --color-text-soft: #5f6b76;
+  --color-accent: #155e75; /* deep sea-blue (Jacob chose blue over terracotta) */
+  --color-accent-deep: #0e4759; /* hover shade */
+  --color-line: #e6e8ea;
+  --color-line-strong: #c9ced2;
+  --color-tint: #f2f7f9; /* whisper-light blue for quiet panels */
+
+  --font-display: 'TC Display F', 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Sans 3 Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --max-width: 72rem;
+  --prose-width: 42rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 1.0625rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 5vw, 3rem);
+}
+
+h2 {
+  font-size: clamp(1.4rem, 3.5vw, 1.9rem);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+a:hover {
+  color: var(--color-accent-deep);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-tint);
+  color: var(--color-accent-deep);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* ---------- shared editorial atoms ---------- */
+
+/* Small uppercase blue label above titles (category names, "Featured") */
+.post-card-category,
+.post-kicker a {
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.post-kicker {
+  margin: 0 0 0.75rem;
+}
+
+.post-kicker a:hover {
+  color: var(--color-accent-deep);
+}
+
+/* Understated section labels ("Latest posts", "Read next") */
+.section-heading {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-text);
+  border-top: 1px solid var(--color-line);
+  padding-top: 1.25rem;
+  margin: 3rem 0 1.5rem;
+}
+
+/* ---------- header / nav ---------- */
+.site-header {
+  border-bottom: 1px solid var(--color-line);
+  padding: 1.1rem 0;
+}
+
+.site-header .container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem 1.5rem;
+}
+
+.site-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.site-title:hover {
+  color: var(--color-accent);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  margin-left: auto;
+}
+
+.site-nav a {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.site-nav a:hover {
+  color: var(--color-accent);
+}
+
+/* ---------- homepage masthead (the centered title focus) ---------- */
+.masthead {
+  text-align: center;
+  padding: 3.25rem 0 1.75rem;
+  border-bottom: 4px double var(--color-line-strong);
+}
+
+.masthead-title {
+  font-size: clamp(2.75rem, 9vw, 4.75rem);
+  font-weight: 620;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.masthead-title a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.masthead-tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--color-text-soft);
+  margin: 0.6rem 0 1.9rem;
+  letter-spacing: 0.01em;
+}
+
+.masthead .site-nav {
+  justify-content: center;
+  margin-left: 0;
+}
+
+/* ---------- footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--color-line);
+  margin-top: 5rem;
+  padding: 2.75rem 0 3rem;
+  text-align: center;
+}
+
+.footer-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 650;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.footer-title:hover {
+  color: var(--color-accent);
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.4rem;
+  margin: 1.1rem 0 1.4rem;
+}
+
+.footer-nav a {
+  color: var(--color-text-soft);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.footer-nav a:hover {
+  color: var(--color-accent);
+}
+
+.footer-copyright {
+  color: var(--color-text-soft);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* ---------- post cards / grid ---------- */
+.post-grid {
+  display: grid;
+  gap: 2.5rem 2rem;
+  grid-template-columns: 1fr;
+  padding: 0;
+  margin: 1.5rem 0;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .post-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 64rem) {
+  .post-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.post-card > a {
+  display: block;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.post-card img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  width: 100%;
+  border-radius: 10px;
+  transition: transform 0.45s ease;
+}
+
+.post-card > a:hover img {
+  transform: scale(1.04);
+}
+
+.post-card-body {
+  padding: 1rem 0 0;
+}
+
+.post-card-body h3 {
+  margin: 0.35rem 0 0.4rem;
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+
+.post-card-body a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.post-card-body a:hover {
+  color: var(--color-accent);
+}
+
+.post-card-desc {
+  color: var(--color-text-soft);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.post-card-body .post-meta {
+  margin-top: 0.6rem;
+}
+
+/* ---------- category strip ---------- */
+.category-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0;
+  margin: 2.25rem 0;
+  list-style: none;
+}
+
+.category-strip a {
+  display: block;
+  padding: 0.45rem 1.1rem;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.category-strip a:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-tint);
+}
+
+/* ---------- hero (homepage featured post) ---------- */
+.hero {
+  margin: 2.5rem 0 0;
+}
+
+.hero > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hero .hero-image-wrap,
+.hero > a {
+  display: block;
+}
+
+.hero img {
+  border-radius: 10px;
+  aspect-ratio: 16 / 8;
+  object-fit: cover;
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.hero .post-card-category {
+  display: inline-block;
+}
+
+.hero-title {
+  font-size: clamp(1.55rem, 4vw, 2.4rem);
+  margin: 0.4rem 0 0.5rem;
+}
+
+.hero a:hover .hero-title {
+  color: var(--color-accent);
+}
+
+.hero .post-card-desc {
+  font-size: 1.05rem;
+  max-width: 60ch;
+}
+
+/* ---------- article / post page ---------- */
+.post-header {
+  text-align: center;
+  margin: 2.75rem 0 0;
+}
+
+.post-header h1 {
+  font-size: clamp(2rem, 5.5vw, 3.1rem);
+  max-width: 24ch;
+  margin: 0.2em auto 0.4em;
+}
+
+.post-header .post-meta {
+  margin: 0 0 2rem;
+}
+
+.post-hero-img {
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.post-meta {
+  color: var(--color-text-soft);
+  font-size: 0.88rem;
+}
+
+.post-meta a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+/* ---------- prose (article body) ---------- */
+.prose {
+  max-width: var(--prose-width);
+  margin: 2.5rem auto 0;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.prose p {
+  margin: 1.25em 0;
+}
+
+.prose h2 {
+  font-size: 1.55rem;
+  margin: 2em 0 0.6em;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  margin: 1.75em 0 0.5em;
+}
+
+.prose a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4rem;
+  margin: 1.25em 0;
+}
+
+.prose li {
+  margin: 0.4em 0;
+}
+
+.prose li::marker {
+  color: var(--color-accent);
+}
+
+.prose blockquote {
+  margin: 1.75em 0;
+  padding: 0.1em 0 0.1em 1.4rem;
+  border-left: 3px solid var(--color-accent);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--color-text-soft);
+}
+
+.prose blockquote p {
+  margin: 0.5em 0;
+}
+
+.prose img {
+  border-radius: 10px;
+  margin: 1.75em 0;
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  width: 5rem;
+  margin: 2.5em auto;
+}
+
+.prose strong {
+  font-weight: 680;
+}
+
+/* ---------- quick facts box ---------- */
+.quick-facts {
+  background: var(--color-tint);
+  border-radius: 10px;
+  padding: 1.4rem 1.5rem 1.5rem;
+  margin: 2.5rem auto 0;
+  max-width: var(--prose-width);
+}
+
+.quick-facts h2 {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+  margin: 0 0 1rem;
+}
+
+.quick-facts dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.quick-facts dt {
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+  margin-bottom: 0.15rem;
+}
+
+.quick-facts dd {
+  margin: 0;
+  font-weight: 620;
+  font-size: 1rem;
+}
+
+/* ---------- author bio ---------- */
+.author-bio {
+  border-top: 1px solid var(--color-line);
+  margin: 3.5rem auto 0;
+  padding-top: 1.75rem;
+  max-width: var(--prose-width);
+  color: var(--color-text-soft);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.author-bio strong {
+  color: var(--color-text);
+}
+
+/* ---------- related posts ---------- */
+.related-posts {
+  margin: 4rem 0 0;
+}
+
+/* ---------- archive (category) pages ---------- */
+.archive-header {
+  text-align: center;
+  margin: 2.75rem 0 0.5rem;
+}
+
+.archive-header h1 {
+  margin-bottom: 0.3em;
+}
+
+.archive-header .post-card-desc {
+  font-size: 1.05rem;
+  max-width: 55ch;
+  margin: 0 auto;
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .post-card img,
+  .category-strip a {
+    transition: none;
+  }
+}

@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+
+export async function getStaticPaths() {
+  // One page per category entry — adding a category in Studio creates its
+  // page automatically on the next publish. No code changes needed.
+  const categories = await getCollection('categories');
+  return categories.map((category) => ({
+    params: { category: category.id },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+
+const posts = (
+  await getCollection(
+    'posts',
+    ({ data }) => !data.draft && data.category.id === category.id,
+  )
+).sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+---
+
+<BaseLayout
+  title={`${category.data.name} — Travel Customs`}
+  description={category.data.description}
+>
+  <div class="container">
+    <header class="archive-header">
+      <h1>{category.data.name}</h1>
+      <p class="post-card-desc">{category.data.description}</p>
+    </header>
+
+    {
+      posts.length > 0 ? (
+        <ul class="post-grid">
+          {posts.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </ul>
+      ) : (
+        <p>No posts in this category yet — check back soon!</p>
+      )
+    }
+  </div>
+</BaseLayout>

@@ -1,0 +1,29 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  // draft: true posts never build, never publish.
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+
+const category = await getEntry(post.data.category);
+if (!category) {
+  // This failing the build is intentional — it's the guardrail that stops a
+  // post with a deleted category from reaching the live site.
+  throw new Error(
+    `The post "${post.data.title}" uses the category "${post.data.category.id}", ` +
+      `but that category no longer exists. Re-assign the post to an existing ` +
+      `category (or re-create the category) and publish again.`,
+  );
+}
+
+const { Content } = await render(post);
+---
+
+<PostLayout post={post} category={category}>
+  <Content />
+</PostLayout>

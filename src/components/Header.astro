@@ -1,0 +1,51 @@
+---
+import { getCollection } from 'astro:content';
+import site from '../data/site.json';
+
+interface Props {
+  // Homepage uses the big centered masthead (site title is the focus);
+  // inner pages keep the compact one-row header.
+  masthead?: boolean;
+}
+
+const { masthead = false } = Astro.props;
+
+// Nav renders from the live categories data — never a hardcoded list.
+// TODO Phase 2: "More ▾" overflow when the category count outgrows one row.
+const categories = (await getCollection('categories')).sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
+---
+
+{
+  masthead ? (
+    <header class="masthead">
+      <div class="container">
+        <h1 class="masthead-title">
+          <a href="/">Travel Customs</a>
+        </h1>
+        <p class="masthead-tagline">{site.tagline}</p>
+        <nav class="site-nav" aria-label="Main navigation">
+          {categories.map((category) => (
+            <a href={`/category/${category.id}/`}>{category.data.name}</a>
+          ))}
+          <a href="/about/">About</a>
+        </nav>
+      </div>
+    </header>
+  ) : (
+    <header class="site-header">
+      <div class="container">
+        <a class="site-title" href="/">
+          Travel Customs
+        </a>
+        <nav class="site-nav" aria-label="Main navigation">
+          {categories.map((category) => (
+            <a href={`/category/${category.id}/`}>{category.data.name}</a>
+          ))}
+          <a href="/about/">About</a>
+        </nav>
+      </div>
+    </header>
+  )
+}

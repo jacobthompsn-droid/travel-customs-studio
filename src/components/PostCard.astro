@@ -1,0 +1,39 @@
+---
+import { Image } from 'astro:assets';
+import { getEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const category = await getEntry(post.data.category);
+
+// timeZone UTC: frontmatter dates parse as UTC midnight, so local-time
+// formatting would show the previous day for US readers.
+const dateFormatted = post.data.publishDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<li class="post-card">
+  <a href={`/posts/${post.id}/`}>
+    <Image
+      src={post.data.heroImage}
+      alt={post.data.heroAlt}
+      widths={[400, 800]}
+      sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+      format="webp"
+    />
+  </a>
+  <div class="post-card-body">
+    {category && <span class="post-card-category">{category.data.name}</span>}
+    <h3><a href={`/posts/${post.id}/`}>{post.data.title}</a></h3>
+    <p class="post-card-desc">{post.data.description}</p>
+    <p class="post-meta">{dateFormatted}</p>
+  </div>
+</li>

@@ -1,0 +1,27 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# environment & secrets — never commit these
+.env
+.env.*
+*.local
+
+# OS / editor noise
+Thumbs.db
+.DS_Store
+
+# per-machine tool settings (not content)
+.claude/settings.local.json
+
+# logs
+npm-debug.log*
+*.log
+
+# Studio app build output (Phase 4+)
+studio/dist/
+studio/out/
+studio/dist-installer/

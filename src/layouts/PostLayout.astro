@@ -1,0 +1,98 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import QuickFactsBox from '../components/QuickFactsBox.astro';
+import AuthorBio from '../components/AuthorBio.astro';
+import RelatedPosts from '../components/RelatedPosts.astro';
+import site from '../data/site.json';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  category: CollectionEntry<'categories'>;
+}
+
+const { post, category } = Astro.props;
+
+// timeZone UTC: frontmatter dates parse as UTC midnight, so local-time
+// formatting would show the previous day for US readers.
+const dateFormatted = post.data.publishDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+const wordCount = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+const readMinutes = Math.max(1, Math.round(wordCount / 200));
+
+const postUrl = new URL(`/posts/${post.id}/`, Astro.site);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BlogPosting',
+      headline: post.data.title,
+      description: post.data.description,
+      datePublished: post.data.publishDate.toISOString(),
+      image: new URL(post.data.heroImage.src, Astro.site).href,
+      author: { '@type': 'Person', name: site.authorName },
+      mainEntityOfPage: postUrl.href,
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).href },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: category.data.name,
+          item: new URL(`/category/${category.id}/`, Astro.site).href,
+        },
+        { '@type': 'ListItem', position: 3, name: post.data.title, item: postUrl.href },
+      ],
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={`${post.data.title} — Travel Customs`}
+  description={post.data.description}
+  ogImage={post.data.heroImage.src}
+  ogType="article"
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+  <article class="container">
+    <header class="post-header">
+      <p class="post-kicker">
+        <a href={`/category/${category.id}/`}>{category.data.name}</a>
+      </p>
+      <h1>{post.data.title}</h1>
+      <p class="post-meta">{dateFormatted} · {readMinutes} min read</p>
+      <Image
+        class="post-hero-img"
+        src={post.data.heroImage}
+        alt={post.data.heroAlt}
+        widths={[640, 1080, 1600]}
+        sizes="(min-width: 72rem) 72rem, 100vw"
+        format="webp"
+        loading="eager"
+      />
+    </header>
+
+    {post.data.quickFacts && <QuickFactsBox quickFacts={post.data.quickFacts} />}
+
+    <div class="prose">
+      <slot />
+    </div>
+
+    <!-- Newsletter slot: intentionally empty at launch. An inline signup
+         could sit here (mid/end of content) if Jacob enables one later. -->
+
+    <AuthorBio />
+  </article>
+
+  <RelatedPosts currentPost={post} />
+</BaseLayout>

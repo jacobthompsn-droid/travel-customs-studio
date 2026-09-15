@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import site from '../data/site.json';
+
+const categories = (await getCollection('categories')).sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <!-- Newsletter slot: intentionally empty at launch (Jacob's decision).
+         When a newsletter is added later, its signup form goes here. -->
+    <a class="footer-title" href="/">Travel Customs</a>
+    <nav class="footer-nav" aria-label="Footer navigation">
+      {categories.map((category) => <a href={`/category/${category.id}/`}>{category.data.name}</a>)}
+      <a href="/about/">About</a>
+      <a href="/rss.xml">RSS</a>
+    </nav>
+    <p class="footer-copyright">© {year} Travel Customs · {site.tagline}</p>
+  </div>
+</footer>
