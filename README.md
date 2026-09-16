@@ -8,6 +8,17 @@ The interesting half of this repository is `studio/` — **Travel Customs Studio
 desktop application I built to write, preview, and publish the site. The site itself is a static
 Astro build; the app is what operates it.
 
+### ▶ [Click through the app, without installing anything](https://jacobthompsn-droid.github.io/travel-customs-studio/demo/)
+
+Studio is a Windows desktop app, so a repository can only show you its source. That link is an
+interactive walkthrough that runs in the browser: open posts and categories in the editor, switch
+to the **Preview** tab (which embeds the real live site), and press **Publish** to watch the
+pipeline run end to end. A checkbox lets you simulate a broken post so you can see the build gate
+refuse to publish and leave the live site untouched.
+
+It is a reproduction, not the real binary — edit anything you like, nothing is saved, and a
+refresh puts it all back.
+
 ---
 
 ## Why this exists

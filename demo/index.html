@@ -177,7 +177,8 @@
   <span class="tag">Demo</span>
   <div>
     <b>Interactive walkthrough of Travel Customs Studio</b> — a browser reproduction of the real Windows desktop app,
-    so you can click through it without installing anything. <b>Nothing here saves.</b>
+    so you can click through it without installing anything. Edit anything you like:
+    <b>nothing is saved anywhere, and a refresh puts it all back.</b>
     The <b>Preview</b> tab is the genuine live site; the editor shows real content and the
     <b>Publish</b> button replays the real pipeline, including the build gate.
   </div>
@@ -370,7 +371,7 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 4200);
   }
-  const readOnly = ()=>toast('<b>Walkthrough only.</b> In the real app this writes Markdown straight to disk on my laptop — here nothing is saved.');
+  const readOnly = ()=>toast('<b>Walkthrough only — nothing is saved.</b> In the real app, Save writes Markdown straight to disk on my laptop, and Publish is what sends it to the internet. Here your edits stay in the page until you refresh.');
 
   function renderBody(blocks){
     if(!blocks || !blocks.length){
@@ -393,6 +394,37 @@
   };
   function iconBtn(k,label){
     return '<button class="ks-icon" data-ro="1" title="'+label+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[k]+'</svg></button>';
+  }
+
+  /* Edits live in memory only: they survive moving around the app, and a
+     page refresh puts everything back. Nothing is ever written anywhere. */
+  function currentEntity(){
+    if(route.view==='post') return POSTS.find(x=>x.slug===route.id);
+    if(route.view==='category') return CATEGORIES.find(x=>x.slug===route.id);
+    if(route.view==='site') return SITE;
+    if(route.view==='about') return ABOUT;
+    return null;
+  }
+  function bodyHtml(ent){
+    return (ent && ent.bodyHtml != null) ? ent.bodyHtml : renderBody(ent ? ent.body : []);
+  }
+  function onEdit(e){
+    const ent = currentEntity();
+    if(!ent) return;
+    const doc = e.target.closest('[data-bind-body]');
+    if(doc){ ent.bodyHtml = doc.innerHTML; return; }
+    const el = e.target.closest('[data-bind]');
+    if(!el) return;
+    const key = el.dataset.bind;
+    const val = el.type === 'checkbox' ? el.checked : el.value;
+    if(key.indexOf('.') > -1){
+      const parts = key.split('.');
+      ent[parts[0]] = ent[parts[0]] || {};
+      ent[parts[0]][parts[1]] = val;
+    } else {
+      ent[key] = val;
+      if(key === 'slug') route.id = val;
+    }
   }
 
   function render(){
@@ -465,22 +497,22 @@
               '<button class="tool" data-ro="1">&#9638;</button>'+
               '<button class="tool" data-ro="1">&#128444;</button>'+
             '</div>'+
-            '<div class="ed-doc" contenteditable="true" spellcheck="false">'+renderBody(p.body)+'</div>'+
+            '<div class="ed-doc" contenteditable="true" spellcheck="false" data-bind-body="1">'+bodyHtml(p)+'</div>'+
           '</div>'+
           '<aside class="ed-side">'+
-            fld('Title',true,'<input type="text" value="'+esc(p.title)+'" />')+
-            fld('URL slug',true,'<div class="row"><input type="text" value="'+esc(p.slug)+'" /><button class="ks-btn ghost" data-ro="1">&#8635;</button></div>','Set once when the post is created — changing it later breaks links.')+
-            fld('Description',true,'<textarea>'+esc(p.description)+'</textarea>','One or two sentences shown on post cards and in Google results.')+
-            fld('Publish date',true,'<input type="date" value="'+p.publishDate+'" />')+
-            fld('Category',true,'<select>'+CATEGORIES.map(c=>'<option value="'+c.slug+'"'+(c.slug===p.category?' selected':'')+'>'+esc(c.slug)+'</option>').join('')+'</select>')+
+            fld('Title',true,'<input type="text" data-bind="title" value="'+esc(p.title)+'" />')+
+            fld('URL slug',true,'<div class="row"><input type="text" data-bind="slug" value="'+esc(p.slug)+'" /><button class="ks-btn ghost" data-ro="1">&#8635;</button></div>','Set once when the post is created — changing it later breaks links.')+
+            fld('Description',true,'<textarea data-bind="description">'+esc(p.description)+'</textarea>','One or two sentences shown on post cards and in Google results.')+
+            fld('Publish date',true,'<input type="date" data-bind="publishDate" value="'+p.publishDate+'" />')+
+            fld('Category',true,'<select data-bind="category">'+CATEGORIES.map(c=>'<option value="'+c.slug+'"'+(c.slug===p.category?' selected':'')+'>'+esc(c.slug)+'</option>').join('')+'</select>')+
             fld('Hero image',true,'<div class="row"><button class="ks-btn ghost" data-ro="1">Choose file</button><button class="ks-btn ghost" data-ro="1">Remove</button></div><p class="help" style="margin-top:.3rem">'+esc(p.heroImage)+'</p>')+
-            fld('Hero image alt text',true,'<textarea>'+esc(p.heroAlt)+'</textarea>','Describe the photo for screen readers and search engines.')+
-            '<div class="fld"><label class="chk"><input type="checkbox" data-ro="1"'+(p.draft?' checked':'')+' /> Draft</label><p class="help">Drafts never appear on the live site.</p></div>'+
+            fld('Hero image alt text',true,'<textarea data-bind="heroAlt">'+esc(p.heroAlt)+'</textarea>','Describe the photo for screen readers and search engines.')+
+            '<div class="fld"><label class="chk"><input type="checkbox" data-bind="draft"'+(p.draft?' checked':'')+' /> Draft</label><p class="help">Drafts never appear on the live site. Tick this, then open the Posts list.</p></div>'+
             '<div class="sub"><h4>Trip at a glance</h4>'+
-              fld('Budget',false,'<input type="text" value="'+esc(p.quickFacts.budget)+'" />')+
-              fld('Duration',false,'<input type="text" value="'+esc(p.quickFacts.duration)+'" />')+
-              fld('Best season',false,'<input type="text" value="'+esc(p.quickFacts.season)+'" />')+
-              fld('Who it’s for',false,'<input type="text" value="'+esc(p.quickFacts.whoFor)+'" />')+
+              fld('Budget',false,'<input type="text" data-bind="quickFacts.budget" value="'+esc(p.quickFacts.budget)+'" />')+
+              fld('Duration',false,'<input type="text" data-bind="quickFacts.duration" value="'+esc(p.quickFacts.duration)+'" />')+
+              fld('Best season',false,'<input type="text" data-bind="quickFacts.season" value="'+esc(p.quickFacts.season)+'" />')+
+              fld('Who it’s for',false,'<input type="text" data-bind="quickFacts.whoFor" value="'+esc(p.quickFacts.whoFor)+'" />')+
             '</div>'+
           '</aside>'+
         '</div>';
@@ -496,9 +528,9 @@
         '<button class="ks-btn" data-ro="1">Save</button>';
       body.style.padding='1.1rem 1.15rem';
       body.innerHTML = '<div style="max-width:680px">'+
-        fld('Name',true,'<input type="text" value="'+esc(c.name)+'" />')+
-        fld('URL slug',true,'<div class="row"><input type="text" value="'+esc(c.slug)+'" /><button class="ks-btn ghost" data-ro="1">Regenerate</button></div>','Set once when the category is created — changing it later breaks links to its page.')+
-        fld('Description',true,'<textarea>'+esc(c.description)+'</textarea>','Shown at the top of this category’s page.')+
+        fld('Name',true,'<input type="text" data-bind="name" value="'+esc(c.name)+'" />')+
+        fld('URL slug',true,'<div class="row"><input type="text" data-bind="slug" value="'+esc(c.slug)+'" /><button class="ks-btn ghost" data-ro="1">Regenerate</button></div>','Set once when the category is created — changing it later breaks links to its page.')+
+        fld('Description',true,'<textarea data-bind="description">'+esc(c.description)+'</textarea>','Shown at the top of this category’s page.')+
         '</div>';
       return;
     }
@@ -507,9 +539,9 @@
       head.innerHTML='<div class="ks-crumb"><span class="cur">Site settings</span></div><div class="grow"></div><button class="ks-btn" data-ro="1">Save</button>';
       body.style.padding='1.1rem 1.15rem';
       body.innerHTML='<div style="max-width:680px">'+
-        fld('Tagline',true,'<input type="text" value="'+esc(SITE.tagline)+'" />','Shown under the site title on every page.')+
-        fld('Author name',true,'<input type="text" value="'+esc(SITE.authorName)+'" />')+
-        fld('Author bio',true,'<textarea>'+esc(SITE.authorBio)+'</textarea>','Shown in the author box at the end of each post.')+
+        fld('Tagline',true,'<input type="text" data-bind="tagline" value="'+esc(SITE.tagline)+'" />','Shown under the site title on every page.')+
+        fld('Author name',true,'<input type="text" data-bind="authorName" value="'+esc(SITE.authorName)+'" />')+
+        fld('Author bio',true,'<textarea data-bind="authorBio">'+esc(SITE.authorBio)+'</textarea>','Shown in the author box at the end of each post.')+
         '</div>';
       return;
     }
@@ -521,10 +553,10 @@
         '<div class="ed-tools"><button class="tool wide" data-ro="1">Paragraph &#8597;</button><span class="tool-sep"></span>'+
         '<button class="tool" data-ro="1"><b>B</b></button><button class="tool" data-ro="1"><i>I</i></button>'+
         '<button class="tool" data-ro="1">&#128279;</button></div>'+
-        '<div class="ed-doc" contenteditable="true" spellcheck="false">'+renderBody(ABOUT.body)+'</div></div>'+
+        '<div class="ed-doc" contenteditable="true" spellcheck="false" data-bind-body="1">'+bodyHtml(ABOUT)+'</div></div>'+
         '<aside class="ed-side">'+
-          fld('Title',true,'<input type="text" value="'+esc(ABOUT.title)+'" />')+
-          fld('Description',true,'<textarea>'+esc(ABOUT.description)+'</textarea>')+
+          fld('Title',true,'<input type="text" data-bind="title" value="'+esc(ABOUT.title)+'" />')+
+          fld('Description',true,'<textarea data-bind="description">'+esc(ABOUT.description)+'</textarea>')+
         '</aside></div>';
       return;
     }
@@ -612,6 +644,9 @@
     toast('In the real app the push to GitHub is what triggers Cloudflare Pages to build and deploy. Live in about a minute.');
     pubBtn.disabled=false;
   });
+
+  $('ks-body').addEventListener('input', onEdit);
+  $('ks-body').addEventListener('change', onEdit);
 
   render();
 })();
