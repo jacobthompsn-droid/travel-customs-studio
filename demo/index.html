@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Travel Customs Studio — interactive walkthrough</title>
+<style>
+  :root{
+    --accent:#155e75; --accent-deep:#0e4759; --text:#262b2e; --text-soft:#5f6b76;
+    --line:#e6e8ea; --tint:#f2f7f9;
+    --ks-blue:#3b5bdb; --ks-line:#d8dade; --ks-soft:#6b7280; --ks-bg:#fbfbfc;
+    --warn:#b3382c; --ok:#2e8b57;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;height:100%;font-family:system-ui,'Segoe UI',sans-serif;background:#fff;color:var(--text)}
+  body{display:flex;flex-direction:column;overflow:hidden}
+
+  /* ---------- honest label ---------- */
+  .demo-bar{
+    flex:0 0 auto;display:flex;gap:.6rem;align-items:flex-start;
+    background:#14313d;color:#e8f1f4;padding:.55rem .9rem;font-size:.78rem;line-height:1.45;
+  }
+  .demo-bar b{color:#fff}
+  .demo-bar .tag{
+    background:#d9a514;color:#2a2200;font-weight:800;font-size:.62rem;letter-spacing:.09em;
+    text-transform:uppercase;padding:.2rem .45rem;border-radius:4px;flex:0 0 auto;margin-top:.05rem;
+  }
+
+  /* ---------- app shell ---------- */
+  .shell{flex:1 1 auto;display:flex;min-height:0}
+  .sidebar{
+    width:200px;flex:0 0 200px;border-right:1px solid var(--line);display:flex;flex-direction:column;
+    padding:1.25rem .9rem 1rem;user-select:none;overflow-y:auto;
+  }
+  .brand{font-family:Georgia,serif;font-weight:700;font-size:1.12rem;letter-spacing:-.02em;margin:0 0 .2rem;padding:0 .35rem;white-space:nowrap}
+  .brand-sub{font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:650;margin:0 0 1.6rem;padding:0 .35rem}
+  .nav-button{display:flex;align-items:center;gap:.6rem;width:100%;border:0;background:transparent;color:var(--text);
+    font-size:.95rem;font-weight:600;padding:.65rem .75rem;border-radius:8px;cursor:pointer;margin-bottom:.25rem;text-align:left;font-family:inherit}
+  .nav-button:hover{background:var(--tint)}
+  .nav-button.active{background:var(--tint);color:var(--accent-deep)}
+  .nav-button .icon{width:18px;height:18px;flex-shrink:0}
+  .nav-button.publish{margin-top:.9rem;background:var(--accent);color:#fff;justify-content:center}
+  .nav-button.publish:hover{background:var(--accent-deep)}
+  .nav-button.publish:disabled{opacity:.6;cursor:default}
+  .publish-hint{font-size:.72rem;line-height:1.45;color:var(--text-soft);margin:.3rem 0 0;padding:0 .75rem}
+  .publish-hint.is-error{color:var(--warn)}
+  .publish-hint.is-success{color:var(--ok)}
+  .link-button{border:0;background:transparent;color:var(--text-soft);font-size:.75rem;text-decoration:underline;
+    cursor:pointer;padding:.4rem .75rem 0;text-align:left;font-family:inherit}
+  .link-button:hover{color:var(--accent)}
+  .github-form{padding:.5rem .75rem 0;display:flex;flex-direction:column;gap:.3rem}
+  .github-form label{font-size:.7rem;font-weight:650;color:var(--text-soft);text-transform:uppercase;letter-spacing:.08em}
+  .github-form input{border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem;font-size:.8rem;width:100%;font-family:inherit}
+  .spacer{flex:1}
+  .status{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--text-soft);padding:.5rem .75rem;line-height:1.35}
+  .status-dot{width:9px;height:9px;border-radius:50%;background:#d9a514;flex-shrink:0}
+  .status.ready .status-dot{background:var(--ok)}
+  .claude-box{border-top:1px solid var(--line);padding-top:.9rem;margin-bottom:.9rem}
+  .claude-label{display:flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--text-soft);margin:0 0 .35rem;padding:0 .35rem}
+  .claude-mark{width:12px;height:12px;color:var(--accent)}
+  .claude-hint{font-size:.72rem;line-height:1.45;color:var(--text-soft);margin:0 0 .6rem;padding:0 .35rem}
+  .see-site{display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;border:1px solid var(--line);
+    background:#fff;color:var(--accent);font-size:.9rem;font-weight:650;padding:.65rem .75rem;border-radius:8px;cursor:pointer;margin-top:.5rem;font-family:inherit}
+  .see-site:hover{border-color:var(--accent);background:var(--tint)}
+
+  .content{flex:1 1 auto;min-width:0;position:relative;background:var(--ks-bg)}
+  .pane{position:absolute;inset:0;display:none;overflow:hidden}
+  .pane.active{display:flex}
+  #preview-pane iframe{width:100%;height:100%;border:0;background:#fff}
+
+  /* ---------- keystatic reproduction ---------- */
+  .ks{display:flex;width:100%;height:100%;background:#fff;font-size:14px}
+  .ks-nav{width:197px;flex:0 0 197px;border-right:1px solid var(--ks-line);padding:0;background:#fff;overflow-y:auto}
+  .ks-brand{display:flex;align-items:center;gap:.5rem;padding:1rem .85rem;font-size:.86rem;font-weight:600}
+  .ks-bolt{width:15px;height:15px;color:#1f2937}
+  .ks-group{font-size:.66rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#9aa1a9;padding:.9rem .95rem .3rem}
+  .ks-item{display:block;width:100%;text-align:left;border:0;background:transparent;font-family:inherit;font-size:.86rem;
+    color:#343a40;padding:.42rem .95rem;cursor:pointer;border-left:3px solid transparent}
+  .ks-item:hover{background:#f6f7f8}
+  .ks-item.active{background:#f1f2f4;font-weight:600;border-left-color:var(--ks-blue)}
+  .ks-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+  .ks-head{flex:0 0 auto;display:flex;align-items:center;gap:.6rem;padding:.8rem 1rem;border-bottom:1px solid var(--ks-line);background:#fff}
+  .ks-crumb{font-size:.95rem;color:var(--ks-soft);display:flex;align-items:center;gap:.4rem;min-width:0}
+  .ks-crumb button{border:0;background:transparent;color:var(--ks-soft);font:inherit;cursor:pointer;padding:0;text-decoration:none}
+  .ks-crumb button:hover{text-decoration:underline;color:#343a40}
+  .ks-crumb .cur{color:#111;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ks-head .grow{flex:1}
+  .ks-btn{border:0;border-radius:6px;background:var(--ks-blue);color:#fff;font:inherit;font-weight:600;font-size:.84rem;
+    padding:.42rem 1rem;cursor:pointer}
+  .ks-btn:hover{background:#31489f}
+  .ks-btn.ghost{background:#fff;color:#343a40;border:1px solid var(--ks-line);font-weight:500}
+  .ks-btn.ghost:hover{background:#f6f7f8}
+  .ks-icons{display:flex;gap:.15rem}
+  .ks-icon{width:30px;height:28px;display:grid;place-items:center;border:0;background:transparent;border-radius:5px;cursor:pointer;color:#6b7280}
+  .ks-icon:hover{background:#f1f2f4;color:#111}
+  .ks-icon svg{width:15px;height:15px}
+  .ks-body{flex:1 1 auto;overflow-y:auto;padding:1.1rem 1.15rem}
+  .ks-search{display:flex;align-items:center;gap:.4rem;border:1px solid var(--ks-line);border-radius:6px;padding:.3rem .55rem;font-size:.82rem;color:#9aa1a9;background:#fff;width:190px}
+  .ks-search input{border:0;outline:0;font:inherit;width:100%;color:#343a40}
+
+  .ks-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.85rem;margin-bottom:1.3rem}
+  .ks-card{border:1px solid var(--ks-line);border-radius:8px;padding:.85rem .95rem;display:flex;align-items:center;gap:.6rem;cursor:pointer;background:#fff}
+  .ks-card:hover{border-color:#b9bec5}
+  .ks-card h3{margin:0;font-size:.95rem;font-weight:650}
+  .ks-card p{margin:.2rem 0 0;font-size:.8rem;color:var(--ks-soft)}
+  .ks-card .plus{margin-left:auto;width:30px;height:30px;border:1px solid var(--ks-line);border-radius:6px;display:grid;place-items:center;color:#343a40;font-size:1rem}
+
+  .ks-table{border:1px solid var(--ks-line);border-radius:8px;overflow:hidden;background:#fff}
+  .ks-th{font-size:.82rem;color:#343a40;padding:.55rem .85rem;background:#fafbfb;border-bottom:1px solid var(--ks-line);font-weight:500}
+  .ks-row{padding:.6rem .85rem;border-bottom:1px solid #f0f1f2;font-size:.86rem;cursor:pointer;display:flex;align-items:center;gap:.6rem}
+  .ks-row:last-child{border-bottom:0}
+  .ks-row:hover{background:#f8f9fa}
+  .ks-pill{margin-left:auto;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a6d00;background:#fdf3d4;padding:.12rem .4rem;border-radius:4px}
+
+  /* entry editor */
+  .ed{display:flex;gap:0;height:100%;min-height:0}
+  .ed-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;border-right:1px solid var(--ks-line)}
+  .ed-tools{flex:0 0 auto;display:flex;align-items:center;gap:.15rem;padding:.45rem .7rem;border-bottom:1px solid var(--ks-line);flex-wrap:wrap}
+  .tool{border:0;background:transparent;border-radius:5px;width:28px;height:26px;display:grid;place-items:center;cursor:pointer;color:#343a40;font-size:.84rem;font-family:inherit}
+  .tool:hover{background:#f1f2f4}
+  .tool.wide{width:auto;padding:0 .5rem;gap:.3rem;font-size:.82rem}
+  .tool-sep{width:1px;height:18px;background:var(--ks-line);margin:0 .25rem}
+  .ed-doc{flex:1 1 auto;overflow-y:auto;padding:1.4rem 1.6rem;line-height:1.6;font-size:.95rem;outline:0}
+  .ed-doc:focus{outline:0}
+  .ed-doc h2{font-size:1.28rem;margin:1.5rem 0 .5rem;font-weight:700}
+  .ed-doc p{margin:0 0 .9rem}
+  .ed-doc ul{margin:0 0 .9rem;padding-left:1.2rem}
+  .ed-doc li{margin-bottom:.18rem}
+  .ed-doc .muted{color:var(--ks-soft);font-style:italic}
+  .ed-side{width:270px;flex:0 0 270px;overflow-y:auto;padding:1rem .95rem 2rem;background:#fff}
+  .fld{margin-bottom:1rem}
+  .fld label{display:block;font-size:.82rem;font-weight:600;margin-bottom:.15rem}
+  .fld .req{color:#d13b2e;margin-left:.1rem}
+  .fld .help{font-size:.74rem;color:var(--ks-soft);line-height:1.4;margin:0 0 .3rem}
+  .fld input[type=text],.fld input[type=date],.fld textarea,.fld select{
+    width:100%;border:1px solid var(--ks-line);border-radius:6px;padding:.4rem .55rem;font:inherit;font-size:.84rem;background:#fff;color:var(--text)}
+  .fld textarea{resize:vertical;min-height:78px;line-height:1.45}
+  .fld input:focus,.fld textarea:focus,.fld select:focus{outline:2px solid var(--ks-blue);outline-offset:-1px}
+  .fld .row{display:flex;gap:.4rem}
+  .fld .row input{flex:1}
+  .chk{display:flex;align-items:center;gap:.45rem;font-size:.84rem;font-weight:600}
+  .chk input{width:15px;height:15px}
+  .sub{border-top:1px solid var(--ks-line);margin-top:1.1rem;padding-top:.9rem}
+  .sub h4{margin:0 0 .7rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ks-soft)}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:22px;visibility:hidden;transform:translateX(-50%) translateY(160%);
+    background:#14313d;color:#fff;padding:.65rem 1rem;border-radius:8px;font-size:.84rem;
+    box-shadow:0 8px 24px rgba(0,0,0,.22);transition:transform .22s ease,visibility .22s;z-index:50;max-width:min(560px,92vw);line-height:1.45}
+  .toast.show{visibility:visible;transform:translateX(-50%) translateY(0)}
+
+  /* publish log */
+  .plog{padding:.15rem .75rem 0;margin:0;list-style:none}
+  .plog li{font-size:.72rem;line-height:1.5;color:var(--text-soft);display:flex;gap:.4rem;align-items:flex-start}
+  .plog li .m{width:1em;flex:0 0 1em;text-align:center}
+  .plog li.done .m{color:var(--ok)}
+  .plog li.fail .m{color:var(--warn)}
+  .plog li.fail{color:var(--warn)}
+  .gate-toggle{font-size:.68rem;color:var(--text-soft);padding:.5rem .75rem 0;line-height:1.45}
+  .gate-toggle label{display:flex;gap:.4rem;align-items:flex-start;cursor:pointer}
+  .gate-toggle input{margin-top:.15rem}
+
+  @media (max-width:900px){
+    .ed{flex-direction:column}
+    .ed-main{border-right:0;border-bottom:1px solid var(--ks-line)}
+    .ed-side{width:auto;flex:0 0 auto}
+    .sidebar{width:170px;flex-basis:170px}
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <span class="tag">Demo</span>
+  <div>
+    <b>Interactive walkthrough of Travel Customs Studio</b> — a browser reproduction of the real Windows desktop app,
+    so you can click through it without installing anything. <b>Nothing here saves.</b>
+    The <b>Preview</b> tab is the genuine live site; the editor shows real content and the
+    <b>Publish</b> button replays the real pipeline, including the build gate.
+  </div>
+</div>
+
+<div class="shell">
+  <!-- ============ the real Studio sidebar ============ -->
+  <nav class="sidebar">
+    <p class="brand">Travel Customs</p>
+    <p class="brand-sub">Studio</p>
+
+    <button class="nav-button active" id="btn-write">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4L8 20l-5 1 1-5L17 3z"/><path d="M14.5 5.5l4 4"/></svg>
+      Write
+    </button>
+    <button class="nav-button" id="btn-preview">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      Preview
+    </button>
+
+    <button class="nav-button publish" id="btn-publish" title="Checks your site for problems, saves a snapshot, and sends it to be published.">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6"/><path d="M5.5 12.5L12 6l6.5 6.5"/><path d="M5 21h14"/></svg>
+      Publish
+    </button>
+    <p class="publish-hint" id="publish-hint">Saving keeps your work on this computer. Publish is what sends it out.</p>
+    <ul class="plog" id="plog"></ul>
+
+    <div class="gate-toggle">
+      <label>
+        <input type="checkbox" id="break-toggle" />
+        <span>Simulate a broken post, to see the build gate refuse to publish</span>
+      </label>
+    </div>
+
+    <button class="link-button" id="btn-github-toggle">GitHub connected &check;</button>
+    <div class="github-form" id="github-form" hidden>
+      <label for="gh-repo">Repository address</label>
+      <input id="gh-repo" type="text" value="https://github.com/…/travel-customs" spellcheck="false" />
+      <label for="gh-token">Access token</label>
+      <input id="gh-token" type="password" placeholder="stored in Windows safeStorage" />
+      <button class="see-site" id="btn-github-save">Save</button>
+      <p class="publish-hint" id="github-msg"></p>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="claude-box">
+      <p class="claude-label">
+        <svg class="claude-mark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z"/></svg>
+        Built with Claude
+      </p>
+      <p class="claude-hint">Claude can read and change this app and your website when you ask.</p>
+      <button class="see-site" id="btn-ask-claude">Ask Claude ↗</button>
+    </div>
+
+    <div class="status ready" id="status">
+      <span class="status-dot"></span>
+      <span id="status-text">Everything is running</span>
+    </div>
+    <button class="see-site" id="btn-see-site">See site ↗</button>
+  </nav>
+
+  <!-- ============ content ============ -->
+  <div class="content">
+    <section class="pane active" id="write-pane">
+      <div class="ks">
+        <aside class="ks-nav">
+          <div class="ks-brand">
+            <svg class="ks-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h7l-1 8 11-13h-7l1-7z"/></svg>
+            Travel Customs Studio
+          </div>
+          <div class="ks-group">Collections</div>
+          <button class="ks-item" data-nav="posts">Posts</button>
+          <button class="ks-item" data-nav="categories">Categories</button>
+          <div class="ks-group">Singletons</div>
+          <button class="ks-item" data-nav="site">Site settings</button>
+          <button class="ks-item" data-nav="about">About page</button>
+        </aside>
+        <div class="ks-main">
+          <header class="ks-head" id="ks-head"></header>
+          <div class="ks-body" id="ks-body"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pane" id="preview-pane">
+      <iframe id="preview-frame" title="Live site preview" src="about:blank"
+              referrerpolicy="no-referrer" loading="lazy"></iframe>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     Real content, read out of the repository.
+     ============================================================ */
+  const CATEGORIES = [
+    {slug:'budget-guides', name:'Budget Guides', description:"Practical guides for stretching your family travel dollars — where to save, where to splurge, and how to plan a trip that doesn't break the bank."},
+    {slug:'city-guides', name:'City Guides', description:"Kid-friendly city itineraries for American cities — what to see, where to eat, and how to do it all without a giant hotel bill."},
+    {slug:'national-parks', name:'National Parks', description:"Stories that portray top Vacations into the Nation's Best National Parks."},
+    {slug:'road-trips', name:'Road Trips', description:"Family-tested American road trip routes with day-by-day plans, budget breakdowns, and the stops actually worth pulling over for."},
+    {slug:'theme-parks', name:'Theme Parks', description:"Honest, budget-minded strategies for Disney, Universal, and beyond — skip the overwhelm, keep the magic, spend less than you think."}
+  ];
+
+  const POSTS = [
+    {
+      slug:'arches-national-park',
+      title:'Arches National Park',
+      description:'Arches National Park',
+      publishDate:'2026-07-05',
+      category:'national-parks',
+      heroImage:'heroImage.JPG',
+      heroAlt:"Arches' Double Arch",
+      draft:false,
+      quickFacts:{budget:'',duration:'',season:'',whoFor:''},
+      body:[]
+    },
+    {
+      slug:'oregon-coast-road-trip',
+      title:'Oregon Coast Road Trip on a Budget: 5 Days, Under $1,200',
+      description:"Our family of four drove the Oregon Coast for five days on less than $1,200 — here's the exact route, where we stayed, and what we'd skip next time.",
+      publishDate:'2026-06-12',
+      category:'road-trips',
+      heroImage:'heroImage.jpg',
+      heroAlt:'Haystack Rock at Cannon Beach at low tide, with families walking on the wet sand',
+      draft:false,
+      quickFacts:{budget:'$1,000–1,200 for 4',duration:'5 days',season:'Late June–September',whoFor:'Families with kids 4+'},
+      body:[
+        {t:'muted', v:'[AI Article Example]'},
+        {t:'p', v:'The Oregon Coast is one of the best-value family road trips in America: the beaches are free, the views are constant, and Highway 101 does most of the entertaining for you. We spent five days driving from Astoria to Brookings and came home under budget.'},
+        {t:'h2', v:'The route at a glance'},
+        {t:'ul', v:['<b>Day 1:</b> Astoria → Cannon Beach (short drive, big payoff)',
+                    '<b>Day 2:</b> Cannon Beach → Tillamook → Pacific City',
+                    '<b>Day 3:</b> Pacific City → Newport (aquarium day)',
+                    '<b>Day 4:</b> Newport → Florence → Coos Bay (dunes!)',
+                    '<b>Day 5:</b> Coos Bay → Brookings and home']},
+        {t:'h2', v:'Where the money went'},
+        {t:'p', v:"Lodging was the biggest line item, so we mixed one splurge night with budget motels and one yurt at a state park. Oregon's state park yurts are the single best budget-lodging trick on the coast — around $60 a night, and the kids talk about it more than any hotel."},
+        {t:'p', v:'Food stayed cheap because we packed a cooler and treated restaurant meals as events, not defaults. The Tillamook Creamery tour is free, and the samples are real.'},
+        {t:'h2', v:"What we'd skip next time"},
+        {t:'p', v:'The touristy seafood place in Newport (long line, fine chowder) and one souvenir stop that cost more than dinner. The free tide pools at Yaquina Head beat both.'}
+      ]
+    },
+    {
+      slug:'yellowstone-vacation-for-families',
+      title:'Yellowstone Vacation for Families',
+      description:'A Yellowstone vacation with events planned that will be fun for the whole family, and great for full family trip vacations.',
+      publishDate:'2026-07-05',
+      category:'road-trips',
+      heroImage:'heroImage.JPG',
+      heroAlt:'Yellowstone Sulfur Pool',
+      draft:false,
+      quickFacts:{budget:'$6,000',duration:'7 Days',season:'Fall, Spring',whoFor:'Families'},
+      body:[{t:'p', v:'Coming soon...'}]
+    }
+  ];
+
+  const SITE = {
+    tagline:'Travel Ideas for Families, Couples, Adventurers, Explorers, and everything in-between',
+    authorName:'Jacob Thompson',
+    authorBio:"Travel Customs is where I share how our family explores the U.S. — real itineraries, real costs, and the customs we've picked up along the way."
+  };
+
+  const ABOUT = {
+    title:'About Travel Customs',
+    description:'The story behind Travel Customs: a family figuring out how to see America without breaking the bank.',
+    body:[
+      {t:'p', v:"Hi, I'm Jacob. Travel Customs is where I write about traveling the U.S. as a family without spending a fortune — the real itineraries we followed, what things actually cost, and what we'd do differently next time."},
+      {t:'p', v:'The name has a double meaning. <i>Customs</i> as in the traditions a family builds on the road — the diner breakfast on day one, the playlist that means "we’re almost there." And <i>customs</i> as in the crossing into somewhere new, even when "somewhere new" is two states over.'}
+    ]
+  };
+
+  const LIVE = 'https://thetravelcustoms.com';
+
+  /* ============================================================ */
+  const $ = (id)=>document.getElementById(id);
+  const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  let route = {view:'dashboard'};
+
+  const toastEl = $('toast');
+  let toastTimer = null;
+  function toast(msg){
+    toastEl.innerHTML = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 4200);
+  }
+  const readOnly = ()=>toast('<b>Walkthrough only.</b> In the real app this writes Markdown straight to disk on my laptop — here nothing is saved.');
+
+  function renderBody(blocks){
+    if(!blocks || !blocks.length){
+      return '<p class="muted">This post has no body text yet.</p>';
+    }
+    return blocks.map(b=>{
+      if(b.t==='h2') return '<h2>'+esc(b.v)+'</h2>';
+      if(b.t==='ul') return '<ul>'+b.v.map(li=>'<li>'+li+'</li>').join('')+'</ul>';
+      if(b.t==='muted') return '<p class="muted">'+esc(b.v)+'</p>';
+      return '<p>'+b.v+'</p>';
+    }).join('');
+  }
+
+  const ICONS = {
+    history:'<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 106 5.3L3 8"/><path d="M12 7v5l4 2"/>',
+    trash:'<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/>',
+    dup:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>',
+    down:'<path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/>',
+    up:'<path d="M12 21V9"/><path d="M7 13l5-5 5 5"/><path d="M4 3h16"/>'
+  };
+  function iconBtn(k,label){
+    return '<button class="ks-icon" data-ro="1" title="'+label+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[k]+'</svg></button>';
+  }
+
+  function render(){
+    document.querySelectorAll('.ks-item').forEach(b=>{
+      const n=b.dataset.nav;
+      const on = (route.view==='dashboard'&&false) ||
+                 (n==='posts'&&(route.view==='posts'||(route.view==='post'))) ||
+                 (n==='categories'&&(route.view==='categories'||route.view==='category')) ||
+                 (n==='site'&&route.view==='site') ||
+                 (n==='about'&&route.view==='about');
+      b.classList.toggle('active', !!on);
+    });
+
+    const head=$('ks-head'), body=$('ks-body');
+
+    if(route.view==='dashboard'){
+      head.innerHTML='<div class="ks-crumb"><span class="cur">Dashboard</span></div>';
+      body.innerHTML =
+        '<div class="ks-group" style="padding-left:0">Collections</div>'+
+        '<div class="ks-cards">'+
+          '<div class="ks-card" data-go="posts"><div><h3>Posts</h3><p>'+POSTS.length+' entries</p></div><span class="plus">+</span></div>'+
+          '<div class="ks-card" data-go="categories"><div><h3>Categories</h3><p>'+CATEGORIES.length+' entries</p></div><span class="plus">+</span></div>'+
+        '</div>'+
+        '<div class="ks-group" style="padding-left:0">Singletons</div>'+
+        '<div class="ks-cards">'+
+          '<div class="ks-card" data-go="site"><div><h3>Site settings</h3></div></div>'+
+          '<div class="ks-card" data-go="about"><div><h3>About page</h3></div></div>'+
+        '</div>';
+      return;
+    }
+
+    if(route.view==='posts' || route.view==='categories'){
+      const isPosts = route.view==='posts';
+      const rows = isPosts ? POSTS : CATEGORIES;
+      head.innerHTML =
+        '<div class="ks-crumb"><span class="cur">'+(isPosts?'Posts':'Categories')+'</span></div>'+
+        '<div class="grow"></div>'+
+        '<div class="ks-search"><span>&#128269;</span><input placeholder="Search" data-ro="1" /></div>'+
+        '<button class="ks-btn" data-ro="1">Add</button>';
+      body.innerHTML =
+        '<div class="ks-table"><div class="ks-th">Name &uarr;</div>'+
+        rows.map(r=>'<div class="ks-row" data-open="'+r.slug+'">'+esc(r.slug)+
+          (isPosts && r.draft ? '<span class="ks-pill">Draft</span>' : '')+'</div>').join('')+
+        '</div>';
+      return;
+    }
+
+    if(route.view==='post'){
+      const p = POSTS.find(x=>x.slug===route.id);
+      head.innerHTML =
+        '<div class="ks-crumb"><button data-go="posts">Posts</button> &rsaquo; <span class="cur">'+esc(p.slug)+'</span></div>'+
+        '<div class="grow"></div>'+
+        '<div class="ks-icons">'+iconBtn('history','Version history')+iconBtn('trash','Delete entry')+iconBtn('down','Reset')+iconBtn('up','Restore')+iconBtn('dup','Duplicate')+'</div>'+
+        '<button class="ks-btn" data-ro="1">Save</button>';
+      body.style.padding='0';
+      body.innerHTML =
+        '<div class="ed">'+
+          '<div class="ed-main">'+
+            '<div class="ed-tools">'+
+              '<button class="tool wide" data-ro="1">Paragraph &#8597;</button><span class="tool-sep"></span>'+
+              '<button class="tool" data-ro="1"><b>B</b></button>'+
+              '<button class="tool" data-ro="1"><i>I</i></button>'+
+              '<button class="tool" data-ro="1"><s>S</s></button>'+
+              '<button class="tool" data-ro="1">&lt;&gt;</button><span class="tool-sep"></span>'+
+              '<button class="tool" data-ro="1">&#8226;&#8801;</button>'+
+              '<button class="tool" data-ro="1">1&#8801;</button><span class="tool-sep"></span>'+
+              '<button class="tool" data-ro="1">&#8212;</button>'+
+              '<button class="tool" data-ro="1">&#128279;</button>'+
+              '<button class="tool" data-ro="1">&#8220;</button>'+
+              '<button class="tool" data-ro="1">&#9638;</button>'+
+              '<button class="tool" data-ro="1">&#128444;</button>'+
+            '</div>'+
+            '<div class="ed-doc" contenteditable="true" spellcheck="false">'+renderBody(p.body)+'</div>'+
+          '</div>'+
+          '<aside class="ed-side">'+
+            fld('Title',true,'<input type="text" value="'+esc(p.title)+'" />')+
+            fld('URL slug',true,'<div class="row"><input type="text" value="'+esc(p.slug)+'" /><button class="ks-btn ghost" data-ro="1">&#8635;</button></div>','Set once when the post is created — changing it later breaks links.')+
+            fld('Description',true,'<textarea>'+esc(p.description)+'</textarea>','One or two sentences shown on post cards and in Google results.')+
+            fld('Publish date',true,'<input type="date" value="'+p.publishDate+'" />')+
+            fld('Category',true,'<select>'+CATEGORIES.map(c=>'<option value="'+c.slug+'"'+(c.slug===p.category?' selected':'')+'>'+esc(c.slug)+'</option>').join('')+'</select>')+
+            fld('Hero image',true,'<div class="row"><button class="ks-btn ghost" data-ro="1">Choose file</button><button class="ks-btn ghost" data-ro="1">Remove</button></div><p class="help" style="margin-top:.3rem">'+esc(p.heroImage)+'</p>')+
+            fld('Hero image alt text',true,'<textarea>'+esc(p.heroAlt)+'</textarea>','Describe the photo for screen readers and search engines.')+
+            '<div class="fld"><label class="chk"><input type="checkbox" data-ro="1"'+(p.draft?' checked':'')+' /> Draft</label><p class="help">Drafts never appear on the live site.</p></div>'+
+            '<div class="sub"><h4>Trip at a glance</h4>'+
+              fld('Budget',false,'<input type="text" value="'+esc(p.quickFacts.budget)+'" />')+
+              fld('Duration',false,'<input type="text" value="'+esc(p.quickFacts.duration)+'" />')+
+              fld('Best season',false,'<input type="text" value="'+esc(p.quickFacts.season)+'" />')+
+              fld('Who it’s for',false,'<input type="text" value="'+esc(p.quickFacts.whoFor)+'" />')+
+            '</div>'+
+          '</aside>'+
+        '</div>';
+      return;
+    }
+
+    if(route.view==='category'){
+      const c = CATEGORIES.find(x=>x.slug===route.id);
+      head.innerHTML =
+        '<div class="ks-crumb"><button data-go="categories">Categories</button> &rsaquo; <span class="cur">'+esc(c.slug)+'</span></div>'+
+        '<div class="grow"></div>'+
+        '<div class="ks-icons">'+iconBtn('history','Version history')+iconBtn('trash','Delete entry')+iconBtn('dup','Duplicate')+'</div>'+
+        '<button class="ks-btn" data-ro="1">Save</button>';
+      body.style.padding='1.1rem 1.15rem';
+      body.innerHTML = '<div style="max-width:680px">'+
+        fld('Name',true,'<input type="text" value="'+esc(c.name)+'" />')+
+        fld('URL slug',true,'<div class="row"><input type="text" value="'+esc(c.slug)+'" /><button class="ks-btn ghost" data-ro="1">Regenerate</button></div>','Set once when the category is created — changing it later breaks links to its page.')+
+        fld('Description',true,'<textarea>'+esc(c.description)+'</textarea>','Shown at the top of this category’s page.')+
+        '</div>';
+      return;
+    }
+
+    if(route.view==='site'){
+      head.innerHTML='<div class="ks-crumb"><span class="cur">Site settings</span></div><div class="grow"></div><button class="ks-btn" data-ro="1">Save</button>';
+      body.style.padding='1.1rem 1.15rem';
+      body.innerHTML='<div style="max-width:680px">'+
+        fld('Tagline',true,'<input type="text" value="'+esc(SITE.tagline)+'" />','Shown under the site title on every page.')+
+        fld('Author name',true,'<input type="text" value="'+esc(SITE.authorName)+'" />')+
+        fld('Author bio',true,'<textarea>'+esc(SITE.authorBio)+'</textarea>','Shown in the author box at the end of each post.')+
+        '</div>';
+      return;
+    }
+
+    if(route.view==='about'){
+      head.innerHTML='<div class="ks-crumb"><span class="cur">About page</span></div><div class="grow"></div><button class="ks-btn" data-ro="1">Save</button>';
+      body.style.padding='0';
+      body.innerHTML='<div class="ed"><div class="ed-main">'+
+        '<div class="ed-tools"><button class="tool wide" data-ro="1">Paragraph &#8597;</button><span class="tool-sep"></span>'+
+        '<button class="tool" data-ro="1"><b>B</b></button><button class="tool" data-ro="1"><i>I</i></button>'+
+        '<button class="tool" data-ro="1">&#128279;</button></div>'+
+        '<div class="ed-doc" contenteditable="true" spellcheck="false">'+renderBody(ABOUT.body)+'</div></div>'+
+        '<aside class="ed-side">'+
+          fld('Title',true,'<input type="text" value="'+esc(ABOUT.title)+'" />')+
+          fld('Description',true,'<textarea>'+esc(ABOUT.description)+'</textarea>')+
+        '</aside></div>';
+      return;
+    }
+  }
+
+  function fld(label,req,control,help){
+    return '<div class="fld"><label>'+esc(label)+(req?'<span class="req">*</span>':'')+'</label>'+
+      (help?'<p class="help">'+esc(help)+'</p>':'')+control+'</div>';
+  }
+
+  /* ---- navigation ---- */
+  document.querySelectorAll('.ks-item').forEach(b=>{
+    b.addEventListener('click',()=>{ route={view:b.dataset.nav}; $('ks-body').style.padding='1.1rem 1.15rem'; render(); });
+  });
+  document.addEventListener('click',(e)=>{
+    const go=e.target.closest('[data-go]');
+    if(go){ route={view:go.dataset.go}; $('ks-body').style.padding='1.1rem 1.15rem'; render(); return; }
+    const open=e.target.closest('[data-open]');
+    if(open){
+      const id=open.dataset.open;
+      route = route.view==='posts' ? {view:'post',id} : {view:'category',id};
+      render(); return;
+    }
+    if(e.target.closest('[data-ro]')){ readOnly(); }
+  });
+
+  /* ---- tabs ---- */
+  const writeBtn=$('btn-write'), prevBtn=$('btn-preview'), frame=$('preview-frame');
+  let frameLoaded=false;
+  function setTab(tab){
+    writeBtn.classList.toggle('active',tab==='write');
+    prevBtn.classList.toggle('active',tab==='preview');
+    $('write-pane').classList.toggle('active',tab==='write');
+    $('preview-pane').classList.toggle('active',tab==='preview');
+    if(tab==='preview' && !frameLoaded){ frame.src=LIVE; frameLoaded=true; }
+  }
+  writeBtn.addEventListener('click',()=>setTab('write'));
+  prevBtn.addEventListener('click',()=>setTab('preview'));
+  $('btn-see-site').addEventListener('click',()=>window.open(LIVE,'_blank','noopener'));
+  $('btn-ask-claude').addEventListener('click',()=>toast('In the real app this opens Claude, where I describe what I want changed about the site or the app itself.'));
+  $('btn-github-toggle').addEventListener('click',()=>{ const f=$('github-form'); f.hidden=!f.hidden; });
+  $('btn-github-save').addEventListener('click',()=>{
+    $('github-msg').className='publish-hint is-error';
+    $('github-msg').textContent='Walkthrough only — no token is stored here. The real app encrypts it with Windows safeStorage.';
+  });
+
+  /* ---- the publish pipeline ---- */
+  const pubBtn=$('btn-publish'), hint=$('publish-hint'), plog=$('plog');
+  const STEPS=[
+    {key:'images', run:'Optimizing photos…',                  done:'Shrank 2 photo(s)'},
+    {key:'build',  run:'Checking your site for problems…',    done:'Site checks out'},
+    {key:'commit', run:'Saving a snapshot of your work…',     done:'Snapshot saved (3 file(s))'},
+    {key:'push',   run:'Sending to GitHub…',                  done:'Sent to GitHub'}
+  ];
+  const wait=(ms)=>new Promise(r=>setTimeout(r,ms));
+
+  pubBtn.addEventListener('click',async()=>{
+    const broken=$('break-toggle').checked;
+    pubBtn.disabled=true; plog.innerHTML='';
+    hint.className='publish-hint'; hint.textContent='Starting…';
+
+    for(let i=0;i<STEPS.length;i++){
+      const s=STEPS[i];
+      hint.className='publish-hint'; hint.textContent=s.run;
+      const li=document.createElement('li');
+      li.innerHTML='<span class="m">•</span><span>'+s.run+'</span>';
+      plog.appendChild(li);
+      await wait(i===1?1500:850);
+
+      if(broken && s.key==='build'){
+        li.className='fail';
+        li.innerHTML='<span class="m">✕</span><span>Build failed — publishing stopped</span>';
+        hint.className='publish-hint is-error';
+        hint.textContent='Something in your site has a problem, so it was NOT published. Nothing on your live site changed.\n\n'+
+          'Could not find image "hero.jpg" referenced by src/content/posts/arches-national-park/index.md';
+        pubBtn.disabled=false;
+        toast('<b>That is the build gate.</b> The commit and the push never ran — the live site is untouched. This is the only reason a broken post can’t reach the internet.');
+        return;
+      }
+      li.className='done';
+      li.innerHTML='<span class="m">✓</span><span>'+s.done+'</span>';
+    }
+    hint.className='publish-hint is-success';
+    hint.textContent='Published! Your changes are on their way to the live site.';
+    toast('In the real app the push to GitHub is what triggers Cloudflare Pages to build and deploy. Live in about a minute.');
+    pubBtn.disabled=false;
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
