@@ -8,7 +8,4 @@ heroAlt: Arches' Double Arch
 draft: false
 quickFacts: {}
 ---
-
-
-
-
+Coming soon...

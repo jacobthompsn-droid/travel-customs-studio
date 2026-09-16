@@ -16,6 +16,8 @@ quickFacts:
   season: Late June–September
   whoFor: Families with kids 4+
 ---
+\[*AI Article Example*]\
+\
 The Oregon Coast is one of the best-value family road trips in America: the beaches are free, the views are constant, and Highway 101 does most of the entertaining for you. We spent five days driving from Astoria to Brookings and came home under budget.
 
 ## The route at a glance
